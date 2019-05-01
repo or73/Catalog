@@ -1,11 +1,18 @@
+# --------------- Database
 from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, Sequence, String, Table
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import backref, relationship
 from sqlalchemy import create_engine
-
 import datetime
+# --------------- Password
+from passlib.apps import custom_app_context as pwd_context
+import random
+import string
+from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
+
 
 Base = declarative_base()
+secret_key = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(32))
 
 # -------------- Many-to-May Relationship tables --------------
 """ 
@@ -21,11 +28,11 @@ Alternatively, the 'backref' option may be used on a single relationship() inste
     using 'back_populates'
 """
 item_category = Table('item_category', Base.metadata,
-                      Column('category_id', Integer, ForeignKey('category.id')),
-                      Column('item_id', Integer, ForeignKey('item.id')))
+                      Column('_category_id', Integer, ForeignKey('category._id')),
+                      Column('_item_id', Integer, ForeignKey('item._id')))
 user_category = Table('user_category', Base.metadata,
-                      Column('user_id', Integer, ForeignKey('user.id')),
-                      Column('category_id', Integer, ForeignKey('category.id')))
+                      Column('_user_id', Integer, ForeignKey('user._id')),
+                      Column('_category_id', Integer, ForeignKey('category._id')))
 
 
 # -------------- Tables Declaration  --------------
@@ -35,8 +42,8 @@ class Category(Base):
     """
     __tablename__ = 'category'
 
-    id = Column(Integer, Sequence('user_id_sequence'), primary_key=True)
-    name = Column(String(250), nullable=False)
+    _id = Column(Integer, Sequence('user_id_sequence'), primary_key=True)
+    name = Column(String(20), nullable=False, index=True)
     description = Column(String(250))
     created = Column(DateTime, default=datetime.datetime.utcnow)
     items = relationship('Item', secondary=item_category, backref=backref('items_category', lazy='dynamic'))
@@ -46,7 +53,7 @@ class Category(Base):
     def serialize(self):
         """Return object data in easily serializable format"""
         return {
-            'id': self.id,
+            '_id': self._id,
             'name': self.name,
             'description': self.description,
             'created': self.created
@@ -59,18 +66,17 @@ class Item(Base):
     """
     __tablename__ = 'item'
 
-    id = Column(Integer, Sequence('user_id_sequence'), primary_key=True)
-    name = Column(String(80), nullable=False)
+    _id = Column(Integer, Sequence('user_id_sequence'), primary_key=True)
+    name = Column(String(20), nullable=False, index=True)
     description = Column(String(250))
-    price = Column(String(8))
+    price = Column(String(10))
     created = Column(DateTime, default=datetime.datetime.utcnow)
-    # categories = relationship('Category', secondary=item_category, backref=backref('items', lazy='dynamic'))
 
     @property
     def serialize(self):
         """Return object data in easily serializable format"""
         return {
-            'id': self.id,
+            '_id': self._id,
             'name': self.name,
             'description': self.description,
             'price': self.price,
@@ -88,25 +94,53 @@ class User(Base):
     """
     __tablename__ = 'user'
 
-    id = Column(Integer, Sequence('user_id_seq'), primary_key=True)
-    name = Column(String(250), nullable=False)
-    email = Column(String(250), nullable=False)
-    picture = Column(String(250))
+    _id = Column(Integer, Sequence('user_id_seq'), primary_key=True)
+    username = Column(String(32), index=True)
+    password = Column(String(64))
+    picture = Column(String)
+    email = Column(String, index=True)
     profile = Column(Boolean, nullable=False)
     created = Column(DateTime, default=datetime.datetime.utcnow)
-    # categories = relationship('Category', secondary=user_category, backref=backref('category_users', lazy='dynamic'))
 
     @property
     def serialize(self):
         """Return object data in easily serializable format"""
         return {
-            'id': self.id,
-            'name': self.name,
+            '_id': self._id,
+            'username': self.username,
+            'password': self.password,
             'email': self.email,
             'picture': self.picture,
             'profile': self.profile,
             'created': self.created
         }
+
+    def hash_password(self, password):
+        self.password = pwd_context.encrypt(password)
+
+    def verify_password(self, password):
+        return pwd_context.verify(password, self.password_hash)
+
+    def generate_auth_token(self, expiration=600):
+        s = Serializer(secret_key,
+                       expires_in=expiration)
+        return s.dumps({'id': self.id})
+
+    @staticmethod
+    def verify_auth_token(token):
+        s = Serializer(secret_key)
+
+        try:
+            data = s.loads(token)
+        except SignatureExpired:
+            # Valid token, but expired
+            return None
+        except BadSignature:
+            # Invalid token
+            return None
+
+        user_id = data['id']
+        return user_id
 
 
 engine = create_engine('sqlite:///catalog.db')
