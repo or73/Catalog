@@ -1,0 +1,155 @@
+{% extends 'main.html' %}
+{% block content %}
+    {% include 'nav.html' %}
+    <nav aria-label='breadcrumb'>
+        <ol class='breadcrumb'>
+            <li class='breadcrumb-item active' aria-current='page'><a href="{{ url_for('showCatalog') }}">Home</a></li>
+            <li class='breadcrumb-item active' aria-current='page'>Login</li>
+        </ol>
+    </nav>
+
+    <div class='flash'>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul>
+                    {% for message in messages %}
+                        <li><strong> {{ message }} </strong></li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+    </div> <!-- /.flash -->
+
+    <div class='container'>
+        <h1 class='main_page_title text-center'>LOGIN</h1>
+        <div class='row d-flex justify-content-center login_div'>
+
+            <div class='col col-md-6 align-items-center'>
+                <form action='#' method='POST'>
+                    <div class='form-group'>
+                        <label for='username'>Username</label>
+                        <input type='text' class='form-control' name='username' aria-describedby='userHelp'
+                               placeholder='Username'/>
+                        <small id='userHelp' class='form-text text-muted'>We'll never share your user information
+                        </small>
+                    </div> <!-- /.form-group -->
+                    <div class='form-group'>
+                        <label for='password'>Password</label>
+                        <input type='password' class='form-control' name='password' placeholder=''/>
+                    </div> <!-- /.form-group -->
+                    <button type='submit' class='btn btn-outline-success' id='submit' type='submit'>
+                        <span class="glyphicon glyphicon-cutlery" aria-hidden="true"></span>
+                        Login
+                    </button>
+                </form>
+            </div> <!-- /.col -->
+        </div> <!-- /.row -->
+        <div id='result'></div>
+
+        <div class='row d-flex justify-content-center login_div'>
+            <div class='col col-md-3 align-items-center'>
+                <script src='{{ url_for("static", filename="js/jquery-3.4.0.min.js") }}'></script>
+                <script src="https://apis.google.com/js/platform.js?onload=start"></script>
+                <script>
+                    gapi.load('auth2', function () {
+                        auth2 = gapi.auth2.init({
+                            client_id: '{{ gmail_client_id }}'
+                            // Scopes to request in addition to 'profile' and 'email'
+                            // scope: 'additional_scope'
+                        });
+                    });
+                </script>
+
+                <button class='g-signin2 btn btn_google btn-lg d-flex' id='signInButton_google'>
+                    <img src='../static/images/google_logo_image.png' alt='Google SignIn'/>
+                    <span class='align-self-center'>SignIn Google</span>
+                </button>
+                <button class='btn btn-default' id='signOutButton'>Google - Sign out</button>
+
+                <script>
+                    // <!-- GOOGLE SIGN IN -->
+                    $('#signInButton_google').click(function () {
+                        $('#signInButton_google').attr('style', 'display: none');
+                        auth2.grantOfflineAccess({'redirect_uri': 'postmessage'}).then(signInCallback);
+                    });
+                    // <!-- GOOGLE SIGN IN -->
+
+                    // <!-- GOOGLE SIGN OUT -->
+                    $('#signOutButton').click(function () {
+                        let auth2 = gapi.auth2.getAuthInstance();
+                        // Show the sign-in button now that the user is authorized
+                        $('#signInButton').attr('style', 'display: block');
+                        auth2.signOut().then(function () {
+                            console.log('User signed out.');
+                        });
+                    });
+                    // <!-- END GOOGLE SIGN_OUT -->
+
+                    function signInCallback(json) {
+                        console.log('--------------- inside callback function ---------------');
+                        console.log(json);
+                        // authResult = JSON.parse(json);
+                        authResult = json;
+                        if (authResult['code']) {
+                            // Hide the sign-in button now that the user is authorized
+                            $('#signInButton_google').attr('style', 'display: none');
+                            // Send the one-time-use code to the server, if the server responds, write a 'login successful' message to the web page and then redirect back to the main restaurants page
+                            $.ajax({
+                                type: 'POST',
+                                url: '/login/google',
+                                processData: false,
+                                data: authResult['code'],
+                                contentType: 'application/octet-stream; charset=utf-8',
+                                success: function (result) {
+                                    // Handle or verify the server response if necessary.
+                                    if (result) {
+                                        $('#result').html('Login Successful!</br>' + result + '</br>Redirecting...')
+                                        setTimeout(function () {
+                                            window.location.href = "/catalog";
+                                        }, 2000);
+                                    } else if (authResult['error']) {
+                                        console.log('There was an error: ' + authResult['error']);
+                                    } else {
+                                        $('#result').html('Failed to make a server-side call. Check your configuration and console.');
+                                    }
+                                }
+                            });
+                        }
+                    }
+                </script>
+                <!--<button class='btn btn_google btn-lg g-signin2 d-flex' username='google' name='google' id='signInButton_google'>
+                    <img src='../static/images/google_logo_image.png' alt='Google SignIn'/>
+                    <span class='align-self-center'>SignIn Google   </span>
+                </button>-->
+                <!--<a class='g-signin2' id='signInButton_google' href='{ url_for("showLogin", username="google", password="") }}'>
+                    <div class='card'>
+                        <img class='card-img-top' src='{ url_for("static", filename="images/google_image.png") }}' alt='Google Login'>
+                        <div class='card-body text-center'>
+                            <p class='card-text'>Login with Google</p>
+                        </div> !-- /.card-body --
+                    </div> !-- /.card --
+                </a>-->
+            </div> <!-- /.col -->
+
+            <div class='col col-md-3 align-items-center'>
+                <!-- <a href='{ url_for("showLogin", username="facebook", password="") }}'>-->
+                <button class='btn btn_facebook btn-lg d-flex' username='facebook' name='facebook'
+                        id='signInButton_facebook'>
+                    <img src='../static/images/facebook_logo_image.png' alt='Facebook SignIn'/>
+                    <span class='align-self-center'>SignIn Facebook</span>
+                </button>
+                <!-- <div class='card'>
+                    <img class='card-img-top' src='{ url_for("static", filename="images/facebook_image.png") }}' alt='Facebook Login'>
+                    <div class='card-body text-center'>
+                        <p class='card-text'>Login with Facebook</p>
+                    </div> -- /.card-body --
+                </div> -- /.card -->
+                <!--</a>-->
+            </div> <!-- /.col -->
+
+        </div> <!-- /.row -->
+        <div class='row'>
+
+        </div>
+    </div> <!-- /.container -->
+{% endblock %}

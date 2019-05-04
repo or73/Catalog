@@ -10,9 +10,8 @@ import random
 import string
 from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
 
-
 Base = declarative_base()
-secret_key = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(32))
+SECRET_KEY = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(32))
 
 # -------------- Many-to-May Relationship tables --------------
 """ 
@@ -119,16 +118,16 @@ class User(Base):
         self.password = pwd_context.encrypt(password)
 
     def verify_password(self, password):
-        return pwd_context.verify(password, self.password_hash)
+        return pwd_context.verify(password, self.password)
 
     def generate_auth_token(self, expiration=600):
-        s = Serializer(secret_key,
+        s = Serializer(SECRET_KEY,
                        expires_in=expiration)
-        return s.dumps({'id': self.id})
+        return s.dumps({'id': self._id})
 
     @staticmethod
     def verify_auth_token(token):
-        s = Serializer(secret_key)
+        s = Serializer(SECRET_KEY)
 
         try:
             data = s.loads(token)

@@ -58,14 +58,16 @@ session.add(Item7)
 session.commit()
 print('Items stored in DB')
 
-
 # ---------------- Creating dummy users
 print('Creating dummy users...')
-User1 = User(username='user1', email='user1@email.com', password='user1pwd', picture='user1 some picture path', profile=1)
+User1 = User(username='user1', email='user1@email.com', password='', picture='user1 some picture path', profile=1)
 
-User2 = User(username='user2', email='user2@email.com', password='user2pwd', picture='user2 some picture path', profile=0)
+User2 = User(username='user2', email='user2@email.com', password='', picture='user2 some picture path', profile=0)
 
-User3 = User(username='user3', email='user3@email.com', password='user3pwd', picture='user3 some picture path', profile=0)
+User3 = User(username='user3', email='user3@email.com', password='', picture='user3 some picture path', profile=0)
+User1.hash_password('user1pwd')
+User2.hash_password('user2pwd')
+User3.hash_password('user3pwd')
 print('Adding dummy users...')
 session.add(User1)
 session.add(User2)
@@ -74,26 +76,24 @@ session.add(User3)
 session.commit()
 print('Users stored in DB')
 
-
 # ---------------- Generating Associations
 
 # Category1 Items
-Category1.users.append(User1)   # Associate User1 with Category1
-Category1.items.append(Item1)   # Associate Item1 with Category1
-Category1.items.append(Item4)   # Associate Item4 with Category1
-Category1.items.append(Item7)   # Associate Item7 with Category1
-Category1.items.append(Item3)   # Associate Item3 with Category1
+Category1.users.append(User1)  # Associate User1 with Category1
+Category1.items.append(Item1)  # Associate Item1 with Category1
+Category1.items.append(Item4)  # Associate Item4 with Category1
+Category1.items.append(Item7)  # Associate Item7 with Category1
+Category1.items.append(Item3)  # Associate Item3 with Category1
 
 # Category2 Items
-Category2.users.append(User2)   # Associate User2 with Category2
-Category2.items.append(Item2)   # Associate Item2 with Category2
-Category2.items.append(Item5)   # Associate Item5 with Category2
-Category2.items.append(Item7)   # Associate Item7 with Category2
+Category2.users.append(User2)  # Associate User2 with Category2
+Category2.items.append(Item2)  # Associate Item2 with Category2
+Category2.items.append(Item5)  # Associate Item5 with Category2
+Category2.items.append(Item7)  # Associate Item7 with Category2
 
 # Category3 Items
-Category3.users.append(User3)   # Associate User3 with Category3
-Category3.items.append(Item3)   # Associate Item3 with Category3
-Category3.items.append(Item6)   # Associate Item6 with Category3
-
+Category3.users.append(User3)  # Associate User3 with Category3
+Category3.items.append(Item3)  # Associate Item3 with Category3
+Category3.items.append(Item6)  # Associate Item6 with Category3
 
 session.commit()
