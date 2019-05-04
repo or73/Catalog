@@ -1,6 +1,14 @@
 {% extends 'main.html' %}
 {% block content %}
     {% include 'nav.html' %}
+    <script src='{{ url_for("static", filename="js/jquery-3.4.0.min.js") }}'></script>
+    <script>
+        $(document).ready(function () {
+            console.log('---------- signIn & signOut loaded')
+                console.log('signInButton Pressed... HIDE')
+                $('#signInButton').toggle();
+        });
+    </script>
     <nav aria-label='breadcrumb'>
         <ol class='breadcrumb'>
             <li class='breadcrumb-item active' aria-current='page'><a href="{{ url_for('showCatalog') }}">Home</a></li>
@@ -44,19 +52,19 @@
                 </form>
             </div> <!-- /.col -->
         </div> <!-- /.row -->
-        <div id='result'></div>
+        <div id='result' class='d-flex'></div>
 
         <div class='row d-flex justify-content-center login_div'>
             <div class='col col-md-3 align-items-center'>
                 <script src='{{ url_for("static", filename="js/jquery-3.4.0.min.js") }}'></script>
                 <script src="https://apis.google.com/js/platform.js?onload=start"></script>
                 <script>
-                    gapi.load('auth2', function () {
-                        auth2 = gapi.auth2.init({
-                            client_id: '{{ gmail_client_id }}'
-                            // Scopes to request in addition to 'profile' and 'email'
-                            // scope: 'additional_scope'
-                        });
+                   gapi.load('auth2', function () {
+                       auth2 = gapi.auth2.init({
+                           client_id: '{{ gmail_client_id }}'
+                           // Scopes to request in addition to 'profile' and 'email'
+                           // scope: 'additional_scope'
+                       });
                     });
                 </script>
 
@@ -64,7 +72,7 @@
                     <img src='../static/images/google_logo_image.png' alt='Google SignIn'/>
                     <span class='align-self-center'>SignIn Google</span>
                 </button>
-                <button class='btn btn-default' id='signOutButton'>Google - Sign out</button>
+                <!--<button class='btn btn-default' id='signOutButton'>Google - Sign out</button>-->
 
                 <script>
                     // <!-- GOOGLE SIGN IN -->
@@ -83,6 +91,16 @@
                             console.log('User signed out.');
                         });
                     });
+
+                    function logout() {
+                        let auth2 = gapi.auth2.getAuthInstance();
+                        // Show the sign-in button now that the user is authorized
+                        $('#signInButton').attr('style', 'display: block');
+                        auth2.signOut().then(function () {
+                            console.log('User signed out.');
+                        });
+                    }
+
                     // <!-- END GOOGLE SIGN_OUT -->
 
                     function signInCallback(json) {
@@ -103,9 +121,10 @@
                                 success: function (result) {
                                     // Handle or verify the server response if necessary.
                                     if (result) {
-                                        $('#result').html('Login Successful!</br>' + result + '</br>Redirecting...')
+                                        // $('#result').html('<h3>Login Successful!</h3><p>' + result + '</p><p>Redirecting...</p>')
+                                        $('#result').html('<div class="alert-success" role="alert"><strong>Login Successful!</strong>   Redirecting...</div>')
                                         setTimeout(function () {
-                                            window.location.href = "/catalog";
+                                            window.location.href = "/catalog/private/";
                                         }, 2000);
                                     } else if (authResult['error']) {
                                         console.log('There was an error: ' + authResult['error']);
@@ -116,6 +135,16 @@
                             });
                         }
                     }
+                </script>
+                <script>
+                    $(document).ready(function () {
+                        console.log('signOutButton Trigger Click...');
+                        // validate if style class is hidden
+                        console.log('$(signInButton_google).attr(display): ', $('#signInButton_google').attr('display'));
+                        if ($('#signInButton_google').attr('display') === 'none') {
+                            logout();
+                        }
+                    });
                 </script>
                 <!--<button class='btn btn_google btn-lg g-signin2 d-flex' username='google' name='google' id='signInButton_google'>
                     <img src='../static/images/google_logo_image.png' alt='Google SignIn'/>

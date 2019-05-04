@@ -95,7 +95,7 @@ class User(Base):
 
     _id = Column(Integer, Sequence('user_id_seq'), primary_key=True)
     username = Column(String(32), index=True)
-    password = Column(String(64))
+    password = Column(String(64), nullable=False)
     picture = Column(String)
     email = Column(String, index=True)
     profile = Column(Boolean, nullable=False)

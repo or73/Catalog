@@ -1,0 +1,77 @@
+{% extends 'main.html' %}
+{% block content %}
+    {% include 'nav.html' %}
+    <script src='{{ url_for("static", filename="js/jquery-3.4.0.min.js") }}'></script>
+    <script>
+        $('#signOutButton').toggle();
+    </script>
+    <nav aria-label='breadcrumb'>
+        <ol class='breadcrumb'>
+            <li class='breadcrumb-item active' aria-current='page'>Home</li>
+        </ol>
+    </nav>
+
+    <div class='flash'>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul>
+                    {% for message in messages %}
+                        <li><strong> {{ message }} </strong></li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+    </div> <!-- /.flash -->
+
+    <div class='row d-flex'>
+        <h1 class='main_page_title private_session'>Private Session</h1>
+    </div> <!-- /.row -->
+    <div class='row align-items-left full_height'>
+        <div class='col col-md-5 align-items-left'>
+            <div class='table-responsive'>
+                <table class='table'>
+                    <thead class='thead_light'>
+                    <tr>
+                        <th class='main_page_title' colspan='2' scope='col'>Categories</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for category in categories %}
+                        <tr class='tr_highlight_red'>
+                            <td>
+                                <a href='{{ url_for("showCategory", category_id=category._id) }}'>
+                                    {{ category.name }}
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div> <!-- /.table-responsive -->
+        </div> <!-- /.col -->
+
+        <div class='col col-md-5 align-items-left'>
+            <div class='table-responsive'>
+                <table class='table'>
+                    <thead class='thead_light'>
+                    <tr>
+                        <th class='main_page_title' colspan='2' scope='col'>Latest Items</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for item in items %}
+                        <tr class='tr_highlight_red'>
+                            <td>
+                                <a href='{{ url_for("showItem", item_id=item._id) }}'>
+                                    {{ item.name }}
+                                </a>
+                                {{ item.categories | safe }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div> <!-- /.table-responsive -->
+        </div> <!-- /.col -->
+    </div> <!-- /.row -->
+{% endblock %}
