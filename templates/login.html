@@ -11,7 +11,7 @@
     </script>
     <nav aria-label='breadcrumb'>
         <ol class='breadcrumb'>
-            <li class='breadcrumb-item active' aria-current='page'><a href="{{ url_for('showCatalog') }}">Home</a></li>
+            <li class='breadcrumb-item active' aria-current='page'><a href="{{ url_for('catalog_routes.show_catalog') }}">Home</a></li>
             <li class='breadcrumb-item active' aria-current='page'>Login</li>
         </ol>
     </nav>
@@ -67,11 +67,12 @@
                        });
                     });
                 </script>
-
-                <button class='g-signin2 btn btn_google btn-lg d-flex' id='signInButton_google'>
+                <!--<button class='g-signin2 btn btn_google btn-lg d-flex' id='signInButton_google'>-->
+                <button class='btn btn_google btn-lg d-flex' id='signInButton_google'>
                     <img src='../static/images/google_logo_image.png' alt='Google SignIn'/>
                     <span class='align-self-center'>SignIn Google</span>
                 </button>
+
                 <!--<button class='btn btn-default' id='signOutButton'>Google - Sign out</button>-->
 
                 <script>

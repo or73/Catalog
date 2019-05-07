@@ -1,9 +1,16 @@
+# ------------------------ Environment
+from dotenv import load_dotenv
+import os
+# ------------------------ DataBase
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
 from database_setup import Base, Category, Item, User
 
-engine = create_engine('sqlite:///catalog.db')
+# Environment
+load_dotenv()
+
+engine = create_engine(os.getenv('DB'))
+
 """
 Bind the engine to the metadata of the Base class so that the
     declaratives can be accessed through a DBSession instance

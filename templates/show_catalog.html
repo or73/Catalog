@@ -39,7 +39,7 @@
                     {% for category in categories %}
                         <tr class='tr_highlight_red'>
                             <td>
-                                <a href='{{ url_for("showCategory", category_id=category._id) }}'>
+                                <a href='{{ url_for("category_routes.show_category", category_id=category._id) }}'>
                                     {{ category.name }}
                                 </a>
                             </td>
@@ -62,7 +62,7 @@
                     {% for item in items %}
                         <tr class='tr_highlight_red'>
                             <td>
-                                <a href='{{ url_for("showItem", item_id=item._id) }}'>
+                                <a href='{{ url_for("item_routes.show_item", item_id=item._id) }}'>
                                     {{ item.name }}
                                 </a>
                                 {{ item.categories | safe }}

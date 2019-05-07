@@ -1,17 +1,24 @@
+# ------------------------ Environment
+from dotenv import load_dotenv
+import os
 # --------------- Database
 from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, Sequence, String, Table
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import backref, relationship
 from sqlalchemy import create_engine
 import datetime
+
 # --------------- Password
 from passlib.apps import custom_app_context as pwd_context
 import random
 import string
 from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
 
-Base = declarative_base()
+# Constants
 SECRET_KEY = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(32))
+
+load_dotenv()
+Base = declarative_base()
 
 # -------------- Many-to-May Relationship tables --------------
 """ 
@@ -35,54 +42,6 @@ user_category = Table('user_category', Base.metadata,
 
 
 # -------------- Tables Declaration  --------------
-class Category(Base):
-    """
-    Category table
-    """
-    __tablename__ = 'category'
-
-    _id = Column(Integer, Sequence('user_id_sequence'), primary_key=True)
-    name = Column(String(20), nullable=False, index=True)
-    description = Column(String(250))
-    created = Column(DateTime, default=datetime.datetime.utcnow)
-    items = relationship('Item', secondary=item_category, backref=backref('items_category', lazy='dynamic'))
-    users = relationship('User', secondary=user_category, backref=backref('users_category', lazy='dynamic'))
-
-    @property
-    def serialize(self):
-        """Return object data in easily serializable format"""
-        return {
-            '_id': self._id,
-            'name': self.name,
-            'description': self.description,
-            'created': self.created
-        }
-
-
-class Item(Base):
-    """
-    Item table
-    """
-    __tablename__ = 'item'
-
-    _id = Column(Integer, Sequence('user_id_sequence'), primary_key=True)
-    name = Column(String(20), nullable=False, index=True)
-    description = Column(String(250))
-    price = Column(String(10))
-    created = Column(DateTime, default=datetime.datetime.utcnow)
-
-    @property
-    def serialize(self):
-        """Return object data in easily serializable format"""
-        return {
-            '_id': self._id,
-            'name': self.name,
-            'description': self.description,
-            'price': self.price,
-            'created': self.created
-        }
-
-
 class User(Base):
     """
     User table
@@ -114,6 +73,9 @@ class User(Base):
             'created': self.created
         }
 
+    def get_id(self):
+        return self._id
+
     def hash_password(self, password):
         self.password = pwd_context.encrypt(password)
 
@@ -142,5 +104,59 @@ class User(Base):
         return user_id
 
 
-engine = create_engine('sqlite:///catalog.db')
+class Category(Base):
+    """
+    Category table
+    """
+    __tablename__ = 'category'
+
+    _id = Column(Integer, Sequence('user_id_sequence'), primary_key=True)
+    name = Column(String(20), nullable=False, index=True)
+    description = Column(String(250))
+    created = Column(DateTime, default=datetime.datetime.utcnow)
+    items = relationship('Item', secondary=item_category, backref=backref('items_category', lazy='dynamic'))
+    users = relationship('User', secondary=user_category, backref=backref('users_category', lazy='dynamic'))
+
+    def get_id(self):
+        return self._id
+
+    @property
+    def serialize(self):
+        """Return object data in easily serializable format"""
+        return {
+            '_id': self._id,
+            'name': self.name,
+            'description': self.description,
+            'created': self.created
+        }
+
+
+class Item(Base):
+    """
+    Item table
+    """
+    __tablename__ = 'item'
+
+    _id = Column(Integer, Sequence('user_id_sequence'), primary_key=True)
+    name = Column(String(20), nullable=False, index=True)
+    description = Column(String(250))
+    price = Column(String(10))
+    created = Column(DateTime, default=datetime.datetime.utcnow)
+
+    def get_id(self):
+        return self._id
+
+    @property
+    def serialize(self):
+        """Return object data in easily serializable format"""
+        return {
+            '_id': self._id,
+            'name': self.name,
+            'description': self.description,
+            'price': self.price,
+            'created': self.created
+        }
+
+
+engine = create_engine(os.getenv('DB'))
 Base.metadata.create_all(engine)
