@@ -79,3 +79,50 @@ This is the Database Structure, and its relationships:
 
 ![Database Structure](./static/images/DB.png)
 
+## Routes / Paths
+For this project the server is `localhost`, and the port is `5000`.  Then, for all the following routes/paths  add 
+`http://localhost:5000` to the beginning.  Example: `http:localhost:5000/<path>`
+### Public
+#### Public Routes/Paths - Root   
+![Public Routes/Paths - Root](./static/images/1.public_route_main.png)   
+
+| Path     | Description                               |
+|:---      |:---                                       |
+| /        | Show a list of **Categories** & **Items** |
+| /catalog |                                           |   
+
+#### Public Routes/Paths - Category   
+![Public Routes/Paths - Category](./static/images/2.public_route_category.png)      
+
+| Path                            | Description                                         |
+|:---                             |:---                                                 |
+| /catalog/<category_id>/         | Show a list of **items** in a selected **Category** |
+| /catalog</category_id>/category |                                                     |   
+
+#### Public Routes/Paths - Item   
+![Public Routes/Paths - Item](./static/images/3.public_route_category_item.png)      
+| Path                             | Description                      |
+|:---                              |:---                              |
+| /catalog/category/<item_id>/     | Show data of a selected **item** |
+| /catalog/category/<item_id>/item |                                  |
+
+
+### Private   
+#### Private Routes/Paths - Root
+| Path             | Description                                                |
+|:---              |:---                                                        |
+| /private         | Show a list of **Categories** & **Items** after user login |
+| /private/catalog |    with `update` & `delete` options                        |   
+
+#### Private Routes/Paths - Category   
+| Path                                    | Description                                                          |
+|:---                                     |:---                                                                  |
+| /private/catalog/<category_id>/         | Show a list of **items** in a selected **Category** after user login |
+| /private/catalog</category_id>/category |    with `update` & `delete` options                                  |   
+
+#### Private Routes/Paths - Item   
+| Path                                     | Description                                       |
+|:---                                      |:---                                               |
+| /private/catalog/category/<item_id>/     | Show data of a selected **item** after user login |
+| /private/catalog/category/<item_id>/item |    with `update` & `delete` options               |
+
