@@ -37,11 +37,15 @@
                     </thead>
                     <tbody>
                     {% for category in categories %}
-                        <tr class='tr_highlight_red'>
-                            <td>
-                                <a href='{{ url_for("category_routes.show_category", category_id=category._id) }}'>
+                        <tr class='tr_highlight'>
+                            <td class='item_category'>
+                                <a class='item' href='{{ url_for("category_routes.show_category", category_id=category._id) }}'>
                                     {{ category.name }}
                                 </a>
+                            </td>
+                            <td>
+                                <a class='edit_button float_right' type='button' data-toggle='tooltip' data-placement='top' title='Edit'><i class='fas fa-pen'></i></a>
+                                <a class='delete_button float_right' type='button' data-toggle='tooltip' data-placement='top' title='Delete'><i class='fas fa-times' aria-hidden="true"></i></a>
                             </td>
                         </tr>
                     {% endfor %}
@@ -60,12 +64,16 @@
                     </thead>
                     <tbody>
                     {% for item in items %}
-                        <tr class='tr_highlight_red'>
-                            <td>
+                        <tr class='tr_highlight'>
+                            <td class='item_category'>
                                 <a href='{{ url_for("item_routes.show_item", item_id=item._id) }}'>
                                     {{ item.name }}
                                 </a>
                                 {{ item.categories | safe }}
+                            </td>
+                            <td>
+                                <a class='edit_button float_right' type='button' data-toggle='tooltip' data-placement='top' title='Edit'><i class='fas fa-pen'></i></a>
+                                <a class='delete_button float_right' type='button' data-toggle='tooltip' data-placement='top' title='Delete'><i class='fas fa-times' aria-hidden="true"></i></a>
                             </td>
                         </tr>
                     {% endfor %}

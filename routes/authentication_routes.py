@@ -6,7 +6,9 @@ This File contains all routes required for user authentication
 """
 import httplib2
 import json
+import random
 import requests
+import string
 
 # ------------------------ Environment
 from dotenv import load_dotenv
@@ -18,7 +20,7 @@ from oauth2client.client import flow_from_clientsecrets, FlowExchangeError
 from flask_httpauth import HTTPBasicAuth  # python 3
 from oauth2client.contrib.flask_util import UserOAuth2
 
-from modules import app_User
+from modules import app_User, app_User_Session
 
 from config import session
 
@@ -26,6 +28,8 @@ load_dotenv()
 authentication_routes = Blueprint('authentication_routes', __name__, template_folder='templates')
 
 GMAIL_CLIENT_ID = os.getenv('GMAIL_CLIENT_ID')
+FACEBOOK_APP_ID = os.getenv('FACEBOOK_APP_ID')
+FACEBOOK_SECRET = os.getenv('FACEBOOK_APP_SECRET')
 
 # Authorization & Authentication
 auth = HTTPBasicAuth()
@@ -44,14 +48,24 @@ oauth2 = UserOAuth2()
 @authentication_routes.route('/login/')
 def show_login():
     print('-------------- Login --------------')
+    state = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(32))
+    session['state'] = state
     print('session: ', session)
-    return render_template('login.html', gmail_client_id=GMAIL_CLIENT_ID)
+    print('GMAIL_CLIENT_ID: ', GMAIL_CLIENT_ID)
+    print('facebook_app_id: ', FACEBOOK_APP_ID)
+    return render_template('login.html', gmail_client_id=GMAIL_CLIENT_ID, facebook_app_id=FACEBOOK_APP_ID, state=state)
 
 
 # Disconnect based on provider
 @authentication_routes.route('/logout')
 def logout():
-    if 'provider' in session:
+    if 'username' in session:
+        # Remove user from UserSession table
+        if app_User_Session.del_user(session['user_id']):
+            print('User session has been removed successfully...')
+        else:
+            print('User session could not been removed...')
+
         # Delete the user's profile and the credentials stored by oauth2
         if session['provider'] == 'google':
             print('-------------- LOGOUT Gmail')
@@ -88,6 +102,15 @@ def login_provider(provider):
     if request.method == 'POST':
         if provider == 'google':
             print('-------------- GOOGLE LOGIN --------------')
+            print('request: ', request)
+            print('request.args: ', request.args)
+            print('request.args.get(state): ', request.args.get('state'))
+            print('session[state]: ', session['state'])
+            # Validate state token
+            if request.args.get('state') != session['state']:
+                response = make_response(json.dumps('Invalid state parameter'), 400)
+                response.headers['Content-type'] = 'application/json'
+                return response
             print('---------- GOOGLE - login ----------')
             # STEP 1 - Parse the auth code
             print('STEP 1 - Parse auth code')
@@ -168,11 +191,19 @@ def login_provider(provider):
             print('*** session: ', session)
 
             # see if user exists, if it doesn't create a new one
-            user = app_User.get_user_id(session['email'])  # getUserID(session['email'])
+            user = app_User.get_user(session['email'])  # getUserID(session['email'])
 
             if not user:
                 print('User does not exist... creating new user...')
-                user = app_User.create_user(session)  # createUser(session)   # User(username=name, picture=picture, email=email)
+                user = app_User.create_user(session)
+
+            # Validate if user session exists
+            user_session_id = app_User_Session.get_user_id(session['email'])
+            if not user_session_id and user:
+                print('User session does not exist... creating a new session...')
+                user_session_id = app_User_Session.create_user(session)
+            session['user_id'] = user_session_id
+
             print('STEP 3 - User Info Obtained')
             # STEP 4 - Create token
             print('STEP 4 - Create Token')
@@ -188,6 +219,90 @@ def login_provider(provider):
             return jsonify({'token': token.decode('ascii')})
         elif provider == 'facebook':
             print('-------------- FACEBOOK LOGIN --------------')
+            # graph = facebook.GraphAPI(access_token=FACEBOOK_APP_ID, version='2.8')
+            # print('graph: ', graph)
+            if request.args.get('state') != session['state']:
+                response = make_response(json.dumps('Invalid state parameter'), 400)
+                response.headers['Content-type'] = 'application/json'
+            print('STEP 1. - Parse auth code')
+            auth_code = request.data.decode('utf-8')  # request.data
+            print('auth_code: ', auth_code)
+            url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&' \
+                  'client_id=%s&' \
+                  'client_secret=%s&' \
+                  'fb_exchange_token=%s' % (FACEBOOK_APP_ID, FACEBOOK_SECRET, auth_code)
+            print('STEP 2. - url: ', url)
+            h = httplib2.Http()
+            result = h.request(url, 'GET')[1]
+            result = result.decode('utf-8')
+            print('STEP 3. - result: ', result)
+            # Use auth_code to get user info form API
+            userinfo_url = 'https://graph.facebook.com/v.2.8/me'
+            """
+            Due to the formatting for the result from the server token exchange we have to
+            split the token first on commas and select the first index which gives us the key : value
+            for the server access token then we split it on colons to pull out the actual token value
+            and replace the remaining quotes with nothing so that it can be used directly in the graph
+            """
+            token = result.split(',')[0].split(':')[1].replace('"', '')
+            print('STEP 4. - token: ', token)
+
+            url = 'https://graph.facebook.com/v2.8/me?access_token=%s&fields=name,id,email' % token
+            print('url: ', url)
+            h = httplib2.Http()
+            print('h: ', h)
+            result = h.request(url, 'GET')[1]
+            print('result: ', result)
+            data = json.loads(result)
+            print('1. data: ', data)
+
+            # Get user picture
+            url = 'https://graph.facebook.com/v2.8/me/picture?access_token=%s&redirect=0&height=200&width=200' % token
+            h = httplib2.Http()
+            result = h.request(url, 'GET')[1]
+            data_picture = json.loads(result)
+            print('2. data_picture: ', data_picture)
+
+            # The token must be stored in the login_session in order to properly logout
+            session['access_token'] = token
+            session['email'] = data['email']
+            session['facebook_id'] = data['id']
+            session['password'] = str(os.getenv('DEFAULT_PWD'))
+            session['picture'] = data_picture['data']['url']
+            session['profile'] = False
+            session['provider'] = 'facebook'
+            session['username'] = data['name']
+
+            print('STEP 4. session: ', session)
+
+            # Validate if user exists
+            user_id = app_User.get_user_id(session['email'])
+
+            # if user_id does not exist, then create a new User
+            if not user_id:
+                print('User does not exist... creating new user...')
+                user_id = app_User.create_user(session)
+
+            # Validate if user session exists
+            user_session_id = app_User_Session.get_user_id(session['email'])
+            if not user_session_id and user_id:
+                print('User session does not exist... creating user session...')
+                user_session_id = app_User_Session.create_user(session)
+            session['user_id'] = user_session_id
+
+            # STEP 5 - Create token
+            print('STEP 5 - Create Token')
+            user = app_User.get_user_info_id(user_id)
+            token = user. generate_auth_token(600)
+            print('token: ', token)
+            print('STEP 6 - Token Created')
+
+            # STEP 5 - Send back token to the client
+            print('STEP 7 - Shows token, redirect web page')
+            print(jsonify({'token': token.decode('ascii')}))
+            # return redirect(url_for('showCatalogPrivate', session=session))
+            print('STEP 7 - Token to return')
+            return jsonify({'token': token.decode('ascii')})
         else:
             print('-------------- USERNAME LOGIN --------------')
             username = request.form['username']

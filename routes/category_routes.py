@@ -1,14 +1,14 @@
 from flask import Blueprint, render_template
 
 from database.database_setup import item_category
-from modules import app_Category, app_Item
-from config import db_session
+from modules import app_Category, app_Item, app_User, app_User_Session
+from config import auth, db_session, g
 
 category_routes = Blueprint('category_routes', __name__, template_folder='templates')
 """
- * * * * * * * * * * * * * * * * * * * * *
- --------------- CATEGORY ----------------
- * * * * * * * * * * * * * * * * * * * * *
+ * * * * * * * * * * * * * * * * * * * * * * * * *
+ --------------- CATEGORY - PUBLIC ---------------
+ * * * * * * * * * * * * * * * * * * * * * * * * * 
 """
 
 # Show a Category
@@ -35,3 +35,57 @@ def show_category(category_id):
     else:  # Category does not exist
         print('Category does not exist')
         return
+
+
+"""
+ * * * * * * * * * * * * * * * * * * * * * * * * *
+ --------------- CATEGORY - PRIVATE --------------
+ * * * * * * * * * * * * * * * * * * * * * * * * * 
+"""
+# Create CRUD Operations
+# Protected with @auth.login_required
+
+
+@category_routes.route('/catalog/private/<int:category_id>/')
+@category_routes.route('/catalog/private/<int:category_id>/category/')
+@auth.login_required
+def show_category_private(category_id):
+    # TODO: show private web page with categories
+    return category_id
+
+
+@category_routes.route('/catalog/private/<int:category_id>/create/')
+@category_routes.route('/catalog/private/<int:category_id>/category/create')
+@auth.login_required
+def create_category(category_id):
+    # TODO: button to create a category, the button appears in show_category_private web page
+    return category_id
+
+
+@category_routes.route('/catalog/private/<int:category_id>/delete/')
+@category_routes.route('/catalog/private/<int:category_id>/category/delete')
+@auth.login_required
+def delete_category(category_id):
+    # TODO: button to delete a category, the button appears in the show_category_private web page
+    #           and in the category web page
+    return category_id
+
+
+@category_routes.route('/catalog/private/<int:category_id>/update/')
+@category_routes.route('/catalog/private/<int:category_id>/category/update')
+@auth.login_required
+def update_category(category_id):
+    # TODO: button to update a category, the button appears in the show_category_private web page
+    #           and in the category web page
+    return category_id
+
+
+@auth.verify_password
+def verify_password(username, password):
+    user_session = app_User_Session.get_user_info_name(username)
+    user = app_User.get_user_info_name(username)
+    if not user or not user_session or not user.verify_password(password):
+        return False
+    g.user = user
+    return True
+

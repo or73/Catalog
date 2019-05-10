@@ -67,11 +67,11 @@ print('Items stored in DB')
 
 # ---------------- Creating dummy users
 print('Creating dummy users...')
-User1 = User(username='user1', email='user1@email.com', password='', picture='user1 some picture path', profile=1)
+User1 = User(username='user1', email='user1@email.com', password='', picture='user1 some picture path', profile=1, provider='local')
 
-User2 = User(username='user2', email='user2@email.com', password='', picture='user2 some picture path', profile=0)
+User2 = User(username='user2', email='user2@email.com', password='', picture='user2 some picture path', profile=0, provider='local')
 
-User3 = User(username='user3', email='user3@email.com', password='', picture='user3 some picture path', profile=0)
+User3 = User(username='user3', email='user3@email.com', password='', picture='user3 some picture path', profile=0, provider='local')
 User1.hash_password('user1pwd')
 User2.hash_password('user2pwd')
 User3.hash_password('user3pwd')

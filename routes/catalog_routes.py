@@ -1,12 +1,16 @@
-from flask import Blueprint, render_template, render_template_string
+# Routing Blueprint
+from flask import Blueprint, redirect, render_template, render_template_string, url_for
 
-from modules import app_Category, app_Item
+from modules import app_Category, app_Item, app_User_Session
+from config import auth, session
 
 catalog_routes = Blueprint('catalog_routes', __name__, template_folder='templates')
+
+
 """
- * * * * * * * * * * * * * * * * * * * * *
- ---------------- CATALOG ----------------
- * * * * * * * * * * * * * * * * * * * * *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ ---------------- CATALOG - PUBLIC ROUTES ----------------
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 """
 
 # Show all categories - PUBLIC
@@ -41,48 +45,69 @@ def show_catalog():
             # Update item.categories string
             if category_query:
                 item_str = ''
-                item_str += '<a class="item_category"'
+                item_str += '<a class="category"'
                 item_str += 'href="{{ url_for(\'category_routes.show_category\', category_id=%s) }}">' \
                             % category_query.get_id()
                 item_str += '- %s</a>' % category_query.name
 
                 item.categories += render_template_string(item_str)
-    return render_template('show_catalog_public.html',
-                           categories=categories_query,
-                           items=items_query)
+    if 'username' in session:
+        user_session = app_User_Session.get_user_info_name(session['username'])
+        if user_session:
+            return render_template('show_catalog.html',
+                                   categories=categories_query,
+                                   items=items_query)
+    else:
+        return render_template('show_catalog_public.html',
+                               categories=categories_query,
+                               items=items_query,
+                               session=session)
 
 
+"""
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ ---------------- CATALOG - PRIVATE ROUTES ---------------
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+"""
 # Show all categories - PRIVATE
 @catalog_routes.route('/catalog/private/')
+@auth.login_required
 def show_catalog_private():
-    print('-------------- Initial route --------------')
-    # Load all categories
-    print('Loading all categories...')
-    categories_query = app_Category.get_all_categories_name('asc')
-    # db_session.query(Category).order_by(asc(Category.name))
-    # Load all latest items
-    print('Loading all 10 latest items')
-    items_query = app_Item.get_all_item_create('desc', 10)
-    # list(db_session.query(Item).order_by(desc(Item.created)).limit(10))
+    print('-------------- Initial route - PRIVATE --------------')
 
-    for item in items_query:
-        # Create categories property into item, to store all categories name
-        item.categories = ''
-        # Make a query in item_category table, by item._id
-        item_category_query = app_Category.get_all_category_items(item.get_id())
-        # Loop in item_categories query, to catch item _id
-        for category in item_category_query:
-            # Make a query in Category by _id, to catch the name
-            category_query = app_Category.get_category(category[0])
-            # Update item.categories string
-            if category_query:
-                item_str = ''
-                item_str += '<a class="item_category"'
-                item_str += 'href="{{ url_for(\'category_routes.show_category\', category_id=%s) }}">' \
-                            % category_query.get_id()
-                item_str += '- %s</a>' % category_query.name
+    if 'username' in session:
+        user_session = app_User_Session.get_user_info_name(session['username'])
+        if user_session:
+            # Load all categories
+            print('Loading all categories...')
+            categories_query = app_Category.get_all_categories_name('asc')
+            # Load all latest items
+            print('Loading all 10 latest items')
+            items_query = app_Item.get_all_item_create('desc', 10)
+            # list(db_session.query(Item).order_by(desc(Item.created)).limit(10))
 
-                item.categories += render_template_string(item_str)
-    return render_template('show_catalog.html',
-                           categories=categories_query,
-                           items=items_query)
+            for item in items_query:
+                # Create categories property into item, to store all categories name
+                item.categories = ''
+                # Make a query in item_category table, by item._id
+                item_category_query = app_Category.get_all_category_items(item.get_id())
+                # Loop in item_categories query, to catch item _id
+                for category in item_category_query:
+                    # Make a query in Category by _id, to catch the name
+                    category_query = app_Category.get_category(category[0])
+                    # Update item.categories string
+                    if category_query:
+                        item_str = ''
+                        item_str += '<a class="item_category"'
+                        item_str += 'href="{{ url_for(\'category_routes.show_category\', category_id=%s) }}">' \
+                                    % category_query.get_id()
+                        item_str += '- %s</a>' % category_query.name
+
+                        item.categories += render_template_string(item_str)
+            return render_template('show_catalog.html',
+                                   categories=categories_query,
+                                   items=items_query)
+        else:
+            print('User is not authorized for this operation (Do not have a valid session)')
+    else:
+        print('User is not authorized for this operation (Do not exist in current session)')

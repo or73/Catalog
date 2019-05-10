@@ -1,8 +1,8 @@
 """
-app_User.py
+app_User_Session.py
 
 @author: OR73
-This File contains all modules to interact with User Object
+This File contains all Users registered in a session
 """
 # --------------- DataBase
 from sqlalchemy.exc import SQLAlchemyError
@@ -12,11 +12,8 @@ from flask_httpauth import HTTPBasicAuth
 import random
 import string
 
-from database.database_setup import User
+from database.database_setup import UserSession
 from config import db_session, session
-
-# Constants
-SECRET_KEY = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(32))
 
 # Authorization & Authentication
 auth = HTTPBasicAuth()
@@ -33,17 +30,33 @@ def create_user(user_data):
     :param user_data: User data
     :return: user.id
     """
-    new_user = User(username=user_data['username'],
-                    email=user_data['email'],
-                    password=user_data['password'],
-                    picture=user_data['picture'],
-                    profile=user_data['profile'],
-                    provider=user_data['provider'])
-    new_user.hash_password(user_data['password'])
+    new_user = UserSession(username=user_data['username'],
+                           email=user_data['email'],
+                           profile=user_data['profile'])
     db_session.add(new_user)
     db_session.commit()
-    user = db_session.query(User).filter_by(email=user_data['email']).first()
-    return user.get_id()
+    user = get_user(user_data['email'])
+    # db_session.query(UserSession).filter_by(email=user_data['email']).first()
+    return user
+
+
+def del_user(user_id):
+    """
+    Search a user by its provided email, and if the user exists in the DB, then
+    User is removed from UserSession table
+    :param email: user email
+    :return: True if user has been removed or False if not
+    """
+    try:
+        db_session.query(UserSession).filter_by(_id=user_id).delete()
+        db_session.commit()
+        user_deleted = get_user_info_id(user_id)
+        if user_deleted:
+            return False
+        else:
+            return True
+    except SQLAlchemyError:
+        return False
 
 
 def get_user(email):
@@ -54,7 +67,7 @@ def get_user(email):
     :return: User Object if user exists or None if does not exist
     """
     try:
-        user = db_session.query(User).filter_by(email=email).first()
+        user = db_session.query(UserSession).filter_by(email=email).first()
         if user:
             return user
         else:
@@ -71,9 +84,9 @@ def get_user_id(email):
     :return: user.id if user exists or None if does not exist
     """
     try:
-        user = db_session.query(User).filter_by(email=email).first()
+        user = db_session.query(UserSession).filter_by(email=email).first()
         if user:
-            return user.get_id()
+            return user._id
         else:
             return False
     except SQLAlchemyError:
@@ -86,7 +99,7 @@ def get_user_info_id(user_id):
     :param user_id: user id to search in DB
     :return: user data
     """
-    user = db_session.query(User).filter_by(_id=user_id).first()
+    user = db_session.query(UserSession).filter_by(_id=user_id).first()
     return user
 
 
@@ -96,23 +109,5 @@ def get_user_info_name(user_name):
     :param user_name: user name to search in DB
     :return: user data
     """
-    user = db_session.query(User).filter_by(username=user_name).first()
+    user = db_session.query(UserSession).filter_by(username=user_name).first()
     return user
-
-
-@auth.verify_password
-def verify_password(self, username, password):
-    print('------- verify_password -------')
-    print('username: %s\n password: %s' % (username, password))
-    user = self.getUserInfo_name(username)
-    print('user: ', type(user))
-
-    if not user:
-        print('User not found')
-        return False
-    elif not user.verify_password(password):
-        print('Unable to verify password')
-        return False
-    # g.user = user
-    print('The user has been validated successfully...')
-    return True

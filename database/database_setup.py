@@ -42,6 +42,22 @@ user_category = Table('user_category', Base.metadata,
 
 
 # -------------- Tables Declaration  --------------
+# Session user
+class UserSession(Base):
+    """
+    UserSession table
+    This table is used to control current user session, to provide access to restricted
+    data and CRUD functions
+    """
+    __tablename__ = 'user_session'
+
+    _id = Column(Integer, Sequence('user_id_seq'), primary_key=True)
+    username = Column(String(32), index=True, nullable=False)
+    email = Column(String, index=True, nullable=False)
+    profile = Column(Boolean, nullable=False)
+
+
+# Local/Registered user
 class User(Base):
     """
     User table
@@ -53,11 +69,12 @@ class User(Base):
     __tablename__ = 'user'
 
     _id = Column(Integer, Sequence('user_id_seq'), primary_key=True)
-    username = Column(String(32), index=True)
+    username = Column(String(32), index=True, nullable=False)
     password = Column(String(64), nullable=False)
     picture = Column(String)
-    email = Column(String, index=True)
+    email = Column(String, index=True, nullable=False)
     profile = Column(Boolean, nullable=False)
+    provider = Column(String(64), nullable=False)
     created = Column(DateTime, default=datetime.datetime.utcnow)
 
     @property
