@@ -3,11 +3,16 @@ This project has been developed following the [Zen of Python - PEP20](http://www
 The code has been refactored to keep it [DRY - Don't Repeat Yourself](http://wiki.c2.com/?DontRepeatYourself).
 ## Description   
 Provides a list of items within a variety of categories as well as provide a user registration and authentication system. Registered users will have the ability to post, edit and delete their own items.
-This is a dynamic website with persistent data storage to create a web application that provides ac compelling service to th users.   
+This is a dynamic website with persistent data storage to create a web application that provides ac compelling service to th users.
 
+![Application Files Structure](application/static/dist/img/readme/10_application_files_structure.png)   
+
+## Installation   
+Clone this repo to your local machine using: 
+And, install all required code to get started:  `https://github.com/or73/Catalog.git`
 Run `pip install -r requirements.txt` to install the project requirement into the development environment.    
  
-## Languages, Frameworks & Style Sheets 
+### Languages, Frameworks & Style Sheets 
 
 | Item                      | Description  | Version |
 |:---                       |:---          |:---     |
@@ -20,7 +25,7 @@ Run `pip install -r requirements.txt` to install the project requirement into th
 | Version Control           | Git, GitHub  | 2.16.1  |
 | Web Application Framework | Flask        | 1.0.2   |   
 
-## Packages & Versions   
+### Packages & Versions   
 
 | Package          | Version |
 |:---              |:---     |
@@ -420,6 +425,10 @@ Now that you have Vagrant up and running type **vagrant ssh** to log into your V
 8. You should be able to view all `Categories` and last ten (10) `Items`, next to each `Item` you can see the `Categries` to which it belong.
 9. In the upper right corner you should see a `Login` button, to login and have access to CRUD (Create, Read, Update, Delete) operations over `Category` and `Item`.
 
+## Credits   
 
+[or73](https://www.linkedin.com/in/oreyesc/)   
+
+Copyright 2019 ©
 
 
