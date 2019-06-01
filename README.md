@@ -115,7 +115,17 @@ This is the Database Structure, and its relationships:
 For this project the server is `localhost`, and the port is `5000`.  Then, for all the following routes/paths  add 
 `http://localhost:5000` to the beginning.  Example: `http:localhost:5000/<path>`   
 
-### Public   
+### Public Routes/Paths   
+
+| Route/Path                | Method | Description                                       |
+|:---                       |:---    |:---                                               |
+| /                         | [GET]  | return a list of all Categories and 10 last items |
+| /catalog/                 | [GET]  | return a list of all Categories and 10 last items |
+| /category/<category_name> | [GET]  | display Category data                             |
+| /item/<item_name>         | [GET]  | display item data                                 |
+| /login/                   | [GET]  |display a login form                               |
+| /signup/                  | [GET]  | display a signup form                             |
+
 #### Public Routes/Paths - Root    
 The `homepage` displays all current categories along with the latest added items   
   
@@ -164,7 +174,24 @@ The user has the option for `Login`.
 | /login | The user has the option to `login` into the application, with an |
 |        |     account that exist in the application                        |
 
-### Private   
+### Private Routes/Paths   
+
+| Route/Path                       | Method   | Description                                    |
+|:---                              |:---      |:---                                            |
+| /logout/                         | [GET]    | logout the current user and send to index page | 
+| **Private - Category URLs**      |          |                                                | 
+| /category/create/                | [GET]    | display a Category form                        | 
+| /category/create/                | [POST]   | create a Category                              | 
+| /category/update/<category_name> | [GET]    | display Category form                          | 
+| /category/update/<category_name> | [POST]   | update Category data                           | 
+| /category/delete/<category_name> | [DELETE] |  delete a Category by its id                   | 
+| **Private - Item URLs**          |          |                                                | 
+| /item/create/<item_name>         | [GET]    | display item form                              | 
+| /item/create/<item_name>         | [POST]   | create an item                                 | 
+| /item/update/<item_name>         | [GET]    |  display item form                             | 
+| /item/update/<item_name>         | [POST]   |  update item data                              | 
+| /item/delete/<item_name>         | [DELETE] |  delete a item by its id                       | 
+  
 #### Private Routes/Paths - Root
 After logging in, a user has the ability to add, update, or delete a `Category` or an `Item`.
 In main page, the user has the option to create a `new Category` or a `new Item`.
@@ -380,8 +407,6 @@ GMAIL_AUTH_PROVIDER_X509_CERT_URL=https://www.googleapis.com/oauth2/v1/certs
 GMAIL_CLIENT_SECRET=<input gmail client secret>
 GMAIL_REDIRECT_URIS=["http://localhost:5000/auth/google"]
 ```
-
-
 
 Now that you have Vagrant up and running type **vagrant ssh** to log into your VM.  
 1. Change to the `/vagrant` directory by typing **cd vagrant**. This will take you to the shared folder between your virtual machine and host machine.
