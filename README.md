@@ -314,6 +314,74 @@ Using the terminal, change directory to `Catalog` (**cd Catalog**), then type **
 ## Running the Catalog App
 Once it is up and running, type **vagrant ssh**. This will log your terminal into the virtual machine, and you'll get a Linux shell prompt. When you want to log out, type **exit** at the shell prompt.  To turn the virtual machine off (without deleting anything), type **vagrant halt**. If you do this, you'll need to run **vagrant up** again before you can log into it.
 
+Some information is required to run the application:
+1. Create a folder called `secrets` and two files inside: `client_secrets_fb.json` and `clinet_secrets_gmail.json`.
+   Each file should contains:   
+   
+**`client_secrets_fb.json`**: 
+```json
+{
+  "web": {
+    "app_id": "<input your app_id>",
+    "app_secret": "<input your app_secret>"
+  }
+}
+```   
+
+**`client_secrets_gmail.json`**: 
+```json
+{
+  "web": {
+    "client_id": "<input your client_id>",
+    "project_id": "<input your project_id>",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_secret": "<input your client_secret>",
+    "redirect_uris": [
+      "http://localhost:5000/auth/google",
+      "http://localhost:5000"
+    ],
+    "javascript_origins": [
+      "http://localhost:5000"
+    ]
+  }
+}
+```   
+
+2. A `.env` hidden file, and this file should contains:
+All required information has been marked with <input ... >, and the information is required for the application.   
+```.env
+# Database
+SQLALCHEMY_DATABASE_URI=sqlite:///catalog.db
+SQLALCHEMY_TRACK_MODIFICATIONS=False
+DB_NAME=catalog.db
+DB_DRIVER=sqlite:///
+# Flask
+FLASK_APP=userApp
+FLASK_DEBUG=False
+# General Config
+DEFAULT_PWD=<input default password>
+SECRET_KEY=<input secret key>
+# Server
+HOST=0.0.0.0
+PORT=5000
+# Facebook
+FACEBOOK_FILE=client_secrets_facebook.json
+FACEBOOK_APP_ID=<input facebook application id>
+FACEBOOK_APP_SECRET=<input facebook application secret key>
+# Gmail
+GMAIL_FILE=client_secrets_gmail.json
+GMAIL_CLIENT_ID=<input gmail client id>
+GMAIL_PROJECT_ID=<input gmail project id>
+GMAIL_AUTH_URI=https://accounts.google.com/o/oauth2/auth
+GMAIL_TOKEN_URI=https://oauth2.googleapis.com/token
+GMAIL_AUTH_PROVIDER_X509_CERT_URL=https://www.googleapis.com/oauth2/v1/certs
+GMAIL_CLIENT_SECRET=<input gmail client secret>
+GMAIL_REDIRECT_URIS=["http://localhost:5000/auth/google"]
+```
+
+
 
 Now that you have Vagrant up and running type **vagrant ssh** to log into your VM.  
 1. Change to the `/vagrant` directory by typing **cd vagrant**. This will take you to the shared folder between your virtual machine and host machine.
