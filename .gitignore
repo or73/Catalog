@@ -146,10 +146,6 @@ Thumbs.db
 *.tar
 *.zip
 
-# Private Data - Google & Facebook #
-####################################
-**/secrets
-
 # PyBuilder #
 #############
 target/
