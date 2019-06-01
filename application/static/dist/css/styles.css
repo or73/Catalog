@@ -1,0 +1,443 @@
+/*
+Inline Block elements: span, a, strong, em, img, br, input, abbr, acronym
+Block Elements:        div, h1...h6, p, ul, li, table, blockquote, pre, form
+*/
+
+/* ----------------- RULES ----------------- */
+/*
+ - Base rules. These are css of the main website elements - body, input, button, ul, ol, etc.
+               In this section, we use mainly HTML tags and attribute selectors, in exceptional
+               cases - classes (for example, if you have JavaScript-style selections);
+ - Layout rules. Here are the css of global elements, the size of the cap, footer, sidebar, etc.
+ - Modules rules. Blocks that can be used multiple times on a single page. For module classes, it is not
+               recommended to use id and tag selectors (for reuse and context independence, respectively).
+ - State rules. In this section, the various statuses of the modules and the basis of the site are
+               prescribed. This is the only section in which the use of the keyword "!Important" is
+               acceptable.
+ - Theme rules. Design css that you might need to replace.
+*/
+
+:root {
+    --black: #000000;
+
+    --gray_dark: #34495E;
+    --gray_dark_1: #2c3Ee50;
+    --gray_dark_2: rgba(52, 73, 94, .5);
+    --gray_light: rgba(173, 173, 173, .5);
+    --gray_light_1: #d6dbdf;
+    --gray_light_2: #e5e8e8;
+
+    --green_dark: #117864;
+    --green_emerald: rgba(23, 165, 137, .5); /*rgba(72, 201, 176, .75);*/
+    --green_light: rgba(162, 217, 206, .75);
+
+    --orange_dark: #a04000;
+
+    --red: rgba(255, 72, 81, 1);
+    --red_dark: #7b241c;
+    --red_dark_1: #a04000;
+    --red_light: #e6b0aa;
+    --red_light_1: #d98880;
+
+    --yellow_dark: #f1c40f;
+
+    --white: #ffffff;
+
+    --blip_size: 375px;
+    --blip_speed: 0.35s;
+    --blip_style: all;
+}
+
+
+/* ----------------- BASE RULES ----------------- */
+/*
+These are css of the main website elements - body, input, button, ul, ol, etc.
+In this section, we use mainly HTML tags and attribute selectors, in exceptional
+cases - classes (for example, if you have JavaScript-style selections)
+*/
+
+*, body, html, div, blockquote,
+img, label, p, h1, h2, h3, h4, h5, h6,
+pre, ul, ol, li, dl, dt, dd, form, a,
+fieldset, input, table, th, td {
+    font-family: Roboto, Lato, Montserrat, Raleway, "Fira Code", sans-serif;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    font-size: 100%;
+    outline: none;
+    vertical-align: baseline;
+}
+
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+    display: block;
+}
+
+html, body {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    height: 100%;
+    margin: 0;
+}
+
+html {
+    overflow: scroll;
+}
+
+*,
+*:before,
+*:after {
+    -webkit-box-sizing: inherit;
+    -moz-box-sizing: inherit;
+    box-sizing: inherit;
+}
+
+ul {
+    list-style: none;
+}
+
+blockquote, q {
+    quotes: none;   /*'\00AB' '\00BB' '\201E' '\201C';*/
+}
+
+blockquote:before,
+blockquote:after,
+q:before,
+q:after {
+    content: '';
+    content: none;
+}
+
+a {
+    background: transparent;
+    margin: 0;
+    padding: 0;
+    vertical-align: baseline;
+}
+
+del {
+    text-decoration: line-through;
+}
+
+abbr[title], dfn[title] {
+    border-bottom: 1px dotted var(--black);
+    cursor: help;
+}
+
+table {
+    border: 0;
+    border-collapse: collapse;
+    border-spacing: 0;
+    table-layout: auto;
+}
+th {
+    font-weight: bold;
+    vertical-align: bottom;
+}
+.w {
+    max-width: 50%;
+}
+table tr {
+    border: 1px solid var(--gray_light_1);
+}
+
+table tr:nth-child(2n+2) {
+    background-color: var(--gray_light_1);
+}
+td {
+    font-weight: normal;
+    vertical-align: top;
+}
+hr {
+    display: block;
+    height: 1px;
+    border: 0;
+    border-top: 1px solid var(--gray_light);
+    margin: 1em 0;
+    padding: 0;
+}
+
+input, select {
+    vertical-align: middle;
+}
+
+pre {
+    white-space: pre-line;
+    -ms-word-wrap: break-word;
+    word-wrap: break-word;
+}
+
+input[type="radio"] {
+    vertical-align: text-bottom;
+}
+
+input[type="checkbox"] {
+    vertical-align: bottom;
+}
+
+select, input, textarea {
+    font: 99% sans-serif;
+}
+
+small {
+    font-size: 85%;
+}
+
+strong {
+    font-weight: bold;
+}
+
+td, td img {
+    vertical-align: top;
+}
+
+sub, sup {
+    font-size: 75%;
+    line-height: 0;
+    position: relative;
+}
+
+sup {
+    top: -0.5em;
+}
+
+sub {
+    bottom: -0.25em;
+}
+
+pre, code, kbd, samp {
+    font-family: monospace, sans-serif;
+}
+
+label,
+input[type=button],
+input[tpe=submit],
+input[type=file],
+button {
+    cursor: pointer;
+}
+
+button,
+input[type=button] {
+    width: auto;
+    overflow: visible;
+}
+
+@keyframes spin-around {
+    from {
+        -webkit-transform: rotate(0deg);
+        -moz-transform: rotate(0deg);
+        -ms-transform: rotate(0deg);
+        -o-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    to {
+        -webkit-transform: rotate(359deg);
+        -moz-transform: rotate(359deg);
+        -ms-transform: rotate(359deg);
+        -o-transform: rotate(359deg);
+        transform: rotate(359deg);
+    }
+}
+
+blockquote, q {
+    quotes: none;
+}
+
+blockquote:before, blockquote:after,
+q:before, q:after {
+    content: none;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font: inherit;
+    padding: .6em 0;
+    margin: 0 .2em;
+}
+
+img {
+    border: 0;
+}
+
+a {
+    color: black;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+button img {
+    width: 35px;
+}
+
+/* ----------------- LAYOUT RULES ----------------- */
+/* Here are the css of global elements, the size of the cap, footer, sidebar, etc. */
+.footer {
+  background: #f5f7fa;
+  padding: 40px 20px 80px;
+}
+
+.footer.is-primary {
+  background: #1fc8db;
+  color: white;
+}
+
+.footer a {
+  color: #69707a;
+}
+
+.footer a:hover {
+  color: #222324;
+}
+
+.footer a:not(.icon) {
+  border-bottom: 1px solid #d3d6db;
+}
+
+.footer a:not(.icon):hover {
+  border-bottom-color: #1fc8db;
+}
+
+.checkbox_list {
+    margin-left: 2em;
+}
+
+/* ----------------- MODULES RULES ----------------- */
+/* Blocks that can be used multiple times on a single page. For module classes, it is not
+   recommended to use id and tag selectors (for reuse and context independence, respectively) */
+
+/* ----------------- STATE RULES ----------------- */
+/* In this section, the various statuses of the modules and the basis of the site are
+   prescribed. This is the only section in which the use of the keyword "!Important" is
+   acceptable */
+
+/* ----------------- THEME RULES ----------------- */
+
+/*.hero-body,
+.table_main,
+.title_subtitle,*/
+
+.hero.is-fullheight .hero-body {
+    align-items: flex-start;
+}
+
+.title,
+.subtitle {
+    margin: 0 0 1em;
+    padding:0;
+}
+
+.class_item_link:hover {
+    color: var(--white);
+    background-color: var(--yellow_dark);
+    font-weight: bold;
+}
+
+/* ----------------- table ----------------- */
+section div.container {
+    width: 90%;
+}
+#div_table {
+    width: 100%;
+}
+table.table {
+    /*display: table;*/
+    /*table-layout: fixed;*/
+    width: 100%;
+}
+table.table tr, table .table tr th {
+    width: inherit;
+    white-space: normal;
+    -ms-word-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 30%;
+}
+table.table td {
+    width: auto;
+    padding: 1em;
+    word-wrap: break-word;
+}
+table.table td{
+    width: auto;
+    max-width: 20%;
+}
+table.table td:nth-child(2n+2) {
+    width: auto;
+    max-width: 60%;
+}
+.max_width_table_description_column {
+    word-wrap: break-word;
+}
+.thead_light th {
+    color: var(--white);
+    background-color: var(--gray_dark);
+    text-align: center;
+    font-size: 1.1em;
+    border-bottom: 1px solid var(--white);
+}
+
+.table_price {
+    white-space: nowrap;
+    width: 1%;
+    padding-left: 1em;
+    padding-right: 1em;
+}
+
+.tr_highlight {
+    padding: .3em;
+    width: 75%;
+    white-space: nowrap;
+}
+
+.tr_highlight a {
+    color: var(--red);
+}
+.tr_highlight:hover,
+.tr_highlight:hover> td {
+    background-color: var(--green_emerald);
+}
+.tr_highlight a:hover,
+.tr_highlight> .item_category> .item:hover,
+.tr_highlight> .item_category> .category:hover,
+.edit_button:hover> i,
+.delete_button:hover> i{
+    font-weight: bold;
+    font-size: 1.1em;
+}
+.tr_highlight:hover> td> .delete_button> i {
+    color: var(--red_light);
+}
+.tr_highlight:hover> td> .edit_button> i {
+    color: var(--green_light);
+}
+.table_description {
+    margin-top: 2em;
+}
+.table_description td {
+    width: 50%;
+}
+
+/* table> tbody> tr> td.max_width_table_description_column {
+     max-width: 45%;
+ }*/
+
+.edit_button,
+.delete_button {
+    margin-top: 0;
+}
+.edit_button> i,
+.delete_button> i {
+    margin-right: 1em;
+}
+.delete_button> i {
+    color: var(--red);
+}
+.edit_button> i {
+    color: var(--green_dark);
+}
