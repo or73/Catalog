@@ -41,6 +41,7 @@ Run `pip install -r requirements.txt` to install the project requirement into th
 | python-dotenv    | 0.10.2  |
 | requests         | 2.22.0  |
 | Werkzeug         | 0.15.4  |
+| wtforms          | 2.2.1   |
 
 ## DB Structure   
 
@@ -256,7 +257,7 @@ In main page, the user has the option to create a `new Item` and associate/link 
 #### Private Routes/Paths - Select Item   
 The logged-in user has the option to select an `Item` and on this page he has the option to `update` or `delete` the selected `Item`, if he is the `owner`.   
 
-![Private Routes/Paths - Select Category](application/static/dist/img/readme/8_2_private_after_login_item_detail.png)
+![Private Routes/Paths - Select Item](application/static/dist/img/readme/8_2_private_after_login_item_detail.png)
 
 | Path               | Description                                                                   |
 |:---                |:---                                                                           |
@@ -266,7 +267,7 @@ The logged-in user has the option to select an `Item` and on this page he has th
 #### Private Routes/Paths - Edit Item   
 The logged-in user has the option to `edit` an `Item` and on this page he has the option to `update` one or more fields, and `add` or `delete` associated/linked `categories`, if he is the `owner`.   
 
-![Private Routes/Paths - Edit Category](application/static/dist/img/readme/8_3_private_after_login_item_edit.png)
+![Private Routes/Paths - Edit Item](application/static/dist/img/readme/8_3_private_after_login_item_edit.png)
 
 | Path                    | Description                                                                                   |
 |:---                     |:---                                                                                           |
@@ -275,7 +276,7 @@ The logged-in user has the option to `edit` an `Item` and on this page he has th
 #### Private Routes/Paths - Delete Item   
 The logged-in user has the option to `delete` an `Item`, and a validation message appears, if he is the `owner`.   
 
-![Private Routes/Paths - Delete Category](application/static/dist/img/readme/8_4_private_after_login_item_delete.png)
+![Private Routes/Paths - Delete Item](application/static/dist/img/readme/8_4_private_after_login_item_delete.png)
 
 | Path                      | Description                                                           |
 |:---                       |:---                                                                   |
