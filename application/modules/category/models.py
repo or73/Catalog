@@ -4,11 +4,13 @@ Description: Category models for App - Define Category models
 Copyright (c) 2019. This Application has been developed by OR73.
 """
 import datetime
-import json
 
-from setup import db
-from ..base_model import BaseModel
-from crud import CRUDMixin
+from application.setup import db
+from application.crud import CRUDMixin
+
+# from setup import db
+# from ..base_model import BaseModel
+# from crud import CRUDMixin
 
 
 class Category(CRUDMixin, db.Model):   # BaseModel):

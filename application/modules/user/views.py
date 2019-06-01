@@ -15,7 +15,8 @@ from flask import g
 # Models
 from .methods import UserMethod
 # DB
-from setup import db
+from application.setup import db
+# from setup import db
 
 user_bp = Blueprint('user_bp', __name__)
 

@@ -1,0 +1,34 @@
+<!-- templates/category/confirm_delete_category.html -->
+
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class='title_subtitle'>
+        <h1 class='title'>{{ title }} - {{ category_name }} Category</h1>
+        <h2 class='subtitle'>{{ subtitle }}</h2>
+    </div> <!-- /.title_subtitle -->
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class='notification is-danger'>
+                {{ messages[0] }}. Go to <a href='{{ url_for("auth_bp.login") }}'>Delete Category Confirmation</a>
+            </div> <!-- /.notification -->
+        {% endif %}
+    {% endwith %}
+
+    <div class='container table_main columns is-mobile is-centered'>
+        <p>Are you sure you want to delete the Category <strong>{{ category_name }}</strong></p>
+    </div> <!-- /.container -->
+
+    {% if current_user.is_authenticated and current_user.is_owner_category(category_name) %}
+        <div class='container'>
+            <a class='button is-success is-outlined'
+               href='{{ url_for("catalog_bp.index") }}'>
+                Cancel
+            </a><!--'{ url_for("category_bp.delete") }}'>-->
+            <a class='button is-danger is-outlined'
+               href='{{ url_for("category_bp.delete", category_name=category_name) }}'>
+                Delete
+            </a>
+        </div> <!-- /.container -->
+    {% endif %}
+{% endblock %}

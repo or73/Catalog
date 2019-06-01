@@ -4,7 +4,9 @@ Description: Category methods for App - Define Category methods
 Copyright (c) 2019. This Application has been developed by OR73.
 """
 from flask_login import current_user
-from setup import db
+
+# from setup import db
+from application.setup import db
 from .models import User
 
 

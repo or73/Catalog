@@ -3,10 +3,10 @@ File Path: application/modules/item/methods.py
 Description: Category methods for App - Define Category methods
 Copyright (c) 2019. This Application has been developed by OR73.
 """
-from setup import db
+# from setup import db
+from application.setup import db
 
 from ..item import Item
-from ..catalog import CatalogMethod
 
 
 class ItemMethod:

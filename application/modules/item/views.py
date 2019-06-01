@@ -7,9 +7,10 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import login_required
 
 # Methods
-from ..item import ItemMethod
+from ..item import (ItemMethod, ValidateCreateUpdateForm)
 # DB
-from setup import db
+# from setup import db
+from application.setup import db
 
 item_bp = Blueprint('item_bp', __name__)
 
@@ -44,31 +45,36 @@ def create():
         categories = ItemMethod.category_method_get_all_categories_order_by_name('asc')
         return render_template('item/create_item.html', categories=categories)
     elif request.method == 'POST':
-        name = request.form.get('name')
-        description = request.form.get('description')
-        price = request.form.get('price')
-        categories_selected = request.form.getlist('category_list')
-        print('name: ', name)
-        print('description: ', description)
-        print('price: ', price)
-        print('categories_selected: ', categories_selected)
+        validate_create_item = ValidateCreateUpdateForm(request.form)
+        if validate_create_item.validate():
+            # name = request.form.get('name')
+            # description = request.form.get('description')
+            # price = request.form.get('price')
+            name = validate_create_item.name.data
+            description = validate_create_item.description.data
+            price = validate_create_item.price.data
+            categories_selected = request.form.getlist('category_list')
+            print('name: ', name)
+            print('description: ', description)
+            print('price: ', price)
+            print('categories_selected: ', categories_selected)
 
-        # Create new item
-        ItemMethod.create_item(name=name,
-                               description=description,
-                               price=price,
-                               owner=ItemMethod.auth_method_get_current_user_id())
-        # Add items to Category
-        for category in categories_selected:
-            new_catalog = ItemMethod.catalog_method_create_catalog(
-                category_id=ItemMethod.category_method_get_id_by_name(category),
-                item_id=ItemMethod.get_id_by_name(name))
-            # new_catalog = Catalog(category_id=CategoryMethodCRUD.get_id_by_name(category),
-            #                      item_id=ItemMethod.get_id_by_name(name))
-            print('type(new_catalog): ', type(new_catalog))
-            print('new_catalog: ', new_catalog)
+            # Create new item
+            ItemMethod.create_item(name=name,
+                                   description=description,
+                                   price=price,
+                                   owner=ItemMethod.auth_method_get_current_user_id())
+            # Add items to Category
+            for category in categories_selected:
+                new_catalog = ItemMethod.catalog_method_create_catalog(
+                    category_id=ItemMethod.category_method_get_id_by_name(category),
+                    item_id=ItemMethod.get_id_by_name(name))
+                # new_catalog = Catalog(category_id=CategoryMethodCRUD.get_id_by_name(category),
+                #                      item_id=ItemMethod.get_id_by_name(name))
+                print('type(new_catalog): ', type(new_catalog))
+                print('new_catalog: ', new_catalog)
 
-        flash('New Item (%s) has been created successfully' % name)
+            flash('New Item (%s) has been created successfully' % name)
         return redirect(url_for('catalog_bp.index'))
 
     flash('Required operation is not authorized')
@@ -102,25 +108,40 @@ def edit(item_name):
                                    categories=categories,
                                    title='Edit Item - %s' % item_name)
         elif request.method == 'POST':
-            new_name = request.form.get('name')
-            new_description = request.form.get('description')
-            new_price = request.form.get('price')
-            new_categories_selected = request.form.getlist('item_list')
+            validate_create_item = ValidateCreateUpdateForm(request.form)
+            if validate_create_item.validate():
+                # new_name = request.form.get('name')
+                # new_description = request.form.get('description')
+                # new_price = request.form.get('price')
+                new_name = validate_create_item.name.data
+                new_description = validate_create_item.description.data
+                new_price = validate_create_item.price.data
+                new_categories_selected = request.form.getlist('item_list')
 
-            item_id = ItemMethod.get_id_by_name(item_name)
-            # Update new Item
-            ItemMethod.update_item(item_id=item_id,
-                                   new_name=new_name,
-                                   new_description=new_description,
-                                   new_price=new_price,
-                                   new_categories=new_categories_selected)
-            """ update_item """
+                item_id = ItemMethod.get_id_by_name(item_name)
+                # Update new Item
+                ItemMethod.update_item(item_id=item_id,
+                                       new_name=new_name,
+                                       new_description=new_description,
+                                       new_price=new_price,
+                                       new_categories=new_categories_selected)
+                """ update_item """
 
-            flash('New Item (%s) has been created successfully' % new_name)
+                flash('New Item (%s) has been created successfully' % new_name)
             return redirect(url_for('catalog_bp.index'))
     else:
         flash('Current user is not owner of selected Item...')
         return redirect(url_for('catalog_bp.index'))
+
+
+@item_bp.route('/item/delete/<string:item_name>/confirmation', methods=['GET'])
+@login_required
+def delete_confirmation(item_name):
+    print('----------------- Item - delete_confirmation - %s' % request.method)
+    return render_template('item/confirm_delete_item.html',
+                           title='Confirm Item Delete',
+                           subtitle='CRUD Operation',
+                           item_name=item_name)
 
 
 @item_bp.route('/item/delete/<string:item_name>', methods=['GET'])

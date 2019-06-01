@@ -9,10 +9,13 @@ from flask_login import UserMixin
 from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from setup import db
-from ..base_model import BaseModel
-from crud import CRUDMixin
-from config import Config
+from application.setup import db
+from application.crud import CRUDMixin
+from application.config import Config
+# from setup import db
+# from ..base_model import BaseModel
+# from crud import CRUDMixin
+# from config import Config
 
 
 class User(UserMixin, CRUDMixin, db.Model):   # BaseModel):

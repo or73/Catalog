@@ -5,9 +5,12 @@ Copyright (c) 2019. This Application has been developed by OR73.
 """
 import datetime
 
-from setup import db
-from ..base_model import BaseModel
-from crud import CRUDMixin
+from application.setup import db
+from application.crud import CRUDMixin
+
+# from setup import db
+# from ..base_model import BaseModel
+# from crud import CRUDMixin
 
 
 class Catalog(CRUDMixin, db.Model):   # BaseModel):

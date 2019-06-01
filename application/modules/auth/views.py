@@ -16,12 +16,14 @@ from oauth2client.client import flow_from_clientsecrets, FlowExchangeError
 from flask_httpauth import HTTPBasicAuth  # python 3
 from oauth2client.contrib.flask_util import UserOAuth2
 
-from instance.config import Config
+# from instance.config import Config
 
 # Methods
-from ..auth import AuthMethod
+from ..auth import (AuthMethod, ValidateLoginForm, ValidateSignUpForm)
 
-from setup import db
+# from setup import db
+from application.instance.config import Config
+from application.setup import db
 
 auth_bp = Blueprint('auth_bp', __name__)
 
@@ -29,63 +31,69 @@ auth_bp = Blueprint('auth_bp', __name__)
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     """ Login 'local' user """
+    print('------------------ auth - login - %s' % request.method)
     state = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(32))
     # Login code
     if request.method == 'POST':
-        # Retrieve data
-        email = request.form.get('email')
-        password = request.form.get('password')
-        remember = True if request.form.get('remember') else False
+        validate_login_form = ValidateLoginForm(request.form)
+        if validate_login_form.validate():
+            print('login form has been validated successfully...')
+            # Retrieve data
+            email = validate_login_form.email.data
+            password = validate_login_form.password.data
+            remember = validate_login_form.remember.data
 
-        user = AuthMethod.user_method_get_user_by_email(email)
-        """# Validate if the auth exists """
+            user = AuthMethod.user_method_get_user_by_email(email)
+            """# Validate if the auth exists """
 
-        if not user or not user.validate_password(password):
-            """ Check if user actually exists take the auth supplied password, hash it,
-                   and compare it to the hashed password in the database if not auth or
-                   not check_password_hash(auth.password, password):"""
-            print('User does not exist...')
-            flash('Please check your login details and try again!')
-            return redirect(url_for('auth_bp.login'))  # if auth does not exist or password is wrong, reload the page
+            if not user or not user.validate_password(password):
+                """ Check if user actually exists take the auth supplied password, hash it,
+                       and compare it to the hashed password in the database if not auth or
+                       not check_password_hash(auth.password, password):"""
+                print('User does not exist...')
+                flash('Please check your login details and try again!')
+                return redirect(url_for('auth_bp.login'))  # if auth does not exist or password is wrong, reload the page
 
-        user.set_session_token()
-        """ Generate new session_token for current_user """
-        user.set_authenticated(True)
-        """ Set authenticated to True """
-        db.session.merge(user)
-        """ Update session_token to current_user """
-        db.session.commit()
-        """ Commit User object modifications """
-        session_token = user.get_session_token()
-        """ Retrieve the session_token of current_user"""
+            user.set_session_token()
+            """ Generate new session_token for current_user """
+            user.set_authenticated(True)
+            """ Set authenticated to True """
+            db.session.merge(user)
+            """ Update session_token to current_user """
+            db.session.commit()
+            """ Commit User object modifications """
+            session_token = user.get_session_token()
+            """ Retrieve the session_token of current_user"""
 
-        # if the above check passes, then the User has the right credentials
-        login_user(user, remember=remember)
-        """ Add user to session environment """
+            # if the above check passes, then the User has the right credentials
+            login_user(user, remember=remember)
+            """ Add user to session environment """
 
-        update_session(access_token=session_token,
-                       authenticated=True,
-                       email=email,
-                       first_name=user.get_first_name(),
-                       last_name=user.get_last_name(),
-                       password=password,
-                       picture='',
-                       profile=False,
-                       provider='local',
-                       session_id=state,
-                       session_token=session_token,
-                       state=state,
-                       username=user.get_username())
-        """ Store data into session """
+            update_session(access_token=session_token,
+                           authenticated=True,
+                           email=email,
+                           first_name=user.get_first_name(),
+                           last_name=user.get_last_name(),
+                           password=password,
+                           picture='',
+                           profile=False,
+                           provider='local',
+                           session_id=state,
+                           session_token=session_token,
+                           state=state,
+                           username=user.get_username())
+            """ Store data into session """
 
-        auth = AuthMethod.create_auth(user_id=user.get_user_id())
+            auth = AuthMethod.create_auth(user_id=user.get_user_id())
 
-        """ Create Auth & Store login_time """
-        if not auth:
-            flash('Something was wrong, and session could not be initiated... try again')
+            """ Create Auth & Store login_time """
+            if not auth:
+                flash('Something was wrong, and session could not be initiated... try again')
+        else:
+            flash('Something is wrong... Please, provide all required information... try again')
+            return render_template('auth/login.html')
         return redirect(url_for('catalog_bp.index'))
     elif request.method == 'GET':
-        print('login method - GET - ', request.method)
         return render_template('auth/login.html',
                                state=state)
 
@@ -262,37 +270,47 @@ def signup():
     state = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(32))
     session['state'] = state
     if request.method == 'POST':
-        # code to validate and add auth to database
-        email = request.form.get('email')
-        password = request.form.get('password')
-        username = request.form.get('username')
-        first_name = request.form.get('first_name')
-        last_name = request.form.get('last_name')
+        validate_signup_form = ValidateSignUpForm(request.form)
+        if validate_signup_form.validate():
+            # code to validate and add auth to database
+            # email = request.form.get('email')
+            # password = request.form.get('password')
+            # username = request.form.get('username')
+            # first_name = request.form.get('first_name')
+            # last_name = request.form.get('last_name')
+            email = validate_signup_form.email.data
+            password = validate_signup_form.password.data
+            username = validate_signup_form.username.data
+            first_name = validate_signup_form.first_name.data
+            last_name = validate_signup_form.last_name.data
 
-        authenticated = False
-        picture = ''
-        profile = 'user'
-        provider = 'local'
+            authenticated = False
+            picture = ''
+            profile = 'user'
+            provider = 'local'
 
-        user = AuthMethod.user_method_get_user_by_email(email)
+            user = AuthMethod.user_method_get_user_by_email(email)
 
-        # if this returns an auth, then the email already exists in DB
-        if user:  # if a auth is found, then redirect back to signup page so auth can try again
-            flash('Email address already exists')
-            return redirect(url_for('auth_bp.signup'))
+            # if this returns an auth, then the email already exists in DB
+            if user:  # if a auth is found, then redirect back to signup page so auth can try again
+                flash('Email address already exists')
+                return redirect(url_for('auth_bp.signup'))
 
-        # create a new auth with the form data.  Hash the password so plaintext version isn't saved
-        AuthMethod.user_method_create_user(authenticated=authenticated,
-                                           email=email,
-                                           first_name=first_name,
-                                           last_name=last_name,
-                                           password=password,
-                                           picture=picture,
-                                           profile=profile,
-                                           provider=provider,
-                                           session_token=None,
-                                           username=username)
-        return redirect(url_for('auth_bp.login'))
+            # create a new auth with the form data.  Hash the password so plaintext version isn't saved
+            AuthMethod.user_method_create_user(authenticated=authenticated,
+                                               email=email,
+                                               first_name=first_name,
+                                               last_name=last_name,
+                                               password=password,
+                                               picture=picture,
+                                               profile=profile,
+                                               provider=provider,
+                                               session_token=None,
+                                               username=username)
+            return redirect(url_for('auth_bp.login'))
+        else:
+            flash('Something is wrong... Please, provide all required information... try again')
+            return render_template('auth/signup.html')
     print('signup - session{state]: ', session['state'])
     return render_template('auth/signup.html',
                            facebook_app_id=Config.FACEBOOK_APP_ID,

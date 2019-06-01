@@ -6,8 +6,7 @@ Copyright (c) 2019. This Application has been developed by OR73.
 import datetime
 
 from flask_login import current_user
-
-from setup import db
+from application.setup import db
 from .models import Auth
 from ..user import UserMethod
 

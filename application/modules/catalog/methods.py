@@ -3,7 +3,8 @@ File Path: application/modules/catalog/methods.py
 Description: Catalog methods for App - Define Catalog methods
 Copyright (c) 2019. This Application has been developed by OR73.
 """
-from setup import db
+# from setup import db
+from application.setup import db
 from .models import Catalog
 from ..auth import AuthMethod
 
